@@ -14,7 +14,7 @@ final class GlobalMacroComputedTests: XCTestCase {
     let testMacros: [String: Macro.Type] = {
         #if canImport(GlobalMacroMacros)
         [
-            "GlobalValue": GlobalValueMacro.self,
+            "GlobalValue": GlobalItemMacro.self,
         ]
         #else
         []
@@ -33,14 +33,14 @@ final class GlobalMacroComputedTests: XCTestCase {
             extension GlobalValues {
                 var state: GlobalState {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState
                     static var defaultValue: Value {
                         .whoKnows
@@ -67,14 +67,14 @@ final class GlobalMacroComputedTests: XCTestCase {
             extension GlobalValues {
                 var state: GlobalState? {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState?
                     static var defaultValue: Value {
                         nil
@@ -101,14 +101,14 @@ final class GlobalMacroComputedTests: XCTestCase {
             extension GlobalValues {
                 var state: GlobalState? {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState?
                     static var defaultValue: Value {
                         nil
@@ -135,14 +135,14 @@ final class GlobalMacroComputedTests: XCTestCase {
             extension GlobalValues {
                 var state: GlobalState? {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState?
                     static var defaultValue: Value {
                         .whoKnows

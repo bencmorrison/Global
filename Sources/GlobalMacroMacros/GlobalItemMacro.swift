@@ -5,10 +5,10 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-public struct GlobalValueMacro: GlobalMacroSupport {
-    public static var macroName: String { "GlobalValue" }
+public struct GlobalItemMacro: GlobalMacroSupport {
+    public static var macroName: String { "Item" }
     @usableFromInline static let extensionName: String = "GlobalValues"
-    @usableFromInline static let prefix: String = "__GlobalKey_"
+    @usableFromInline static let prefix: String = "__GlobalValueEntry_"
     @usableFromInline static let propertyTypeArgumentName: String = "propertyType"
     @usableFromInline static let propertyTypeNameComputed: String = "computed"
     @usableFromInline static let propertyTypeNameConstant: String = "constant"
@@ -25,7 +25,7 @@ public struct GlobalValueMacro: GlobalMacroSupport {
     }
 }
 
-extension GlobalValueMacro: AccessorMacro {
+extension GlobalItemMacro: AccessorMacro {
     public static func expansion(
         of node: AttributeSyntax,
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
@@ -44,7 +44,7 @@ extension GlobalValueMacro: AccessorMacro {
     }
 }
 
-extension GlobalValueMacro: PeerMacro {
+extension GlobalItemMacro: PeerMacro {
     public static func expansion(
         of node: AttributeSyntax,
         providingPeersOf declaration: some DeclSyntaxProtocol,
@@ -71,18 +71,14 @@ extension GlobalValueMacro: PeerMacro {
         
         switch evaluationType {
         case propertyTypeNameConstant:
-            source += """
-                static let defaultValue: Value = \(defaultValue)
-            """
+            source += "\n    static let defaultValue: Value = \(defaultValue)"
         case propertyTypeNameComputed:
-            source += """
-                static var defaultValue: Value { \(defaultValue) }
-            """
+            source += "\n    static var defaultValue: Value { \(defaultValue) }"
         default:
             throw GlobalMacroError.unknownType(evaluationType, forMacro: self)
         }
         
-        source += "}"
+        source += "\n}"
         
         return [
             DeclSyntax(stringLiteral: source)

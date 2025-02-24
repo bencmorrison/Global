@@ -13,12 +13,12 @@ struct Thing {
 }
 
 extension GlobalValues {
-    @GlobalValue var state: GlobalState = .whoKnows
-    @GlobalValue var defaultInteger: Int = .min
+    @GlobalValue(propertyType: .computed) var state: GlobalState = .whoKnows
+    @Item var defaultInteger: Int = 1234567890
 }
 
 final class Client: CustomStringConvertible {
-    @Global(\.state) private var state: GlobalState
+    @GlobalRW(\.state) private var state: GlobalState
     
     func changeState(to: GlobalState) {
         state = to
@@ -38,7 +38,7 @@ struct ClientViewer: CustomStringConvertible {
 }
 
 extension Int {
-    @GlobalAccessor(\.defaultInteger, type: .getter) var `default`: Int
+    @Accessor(\.defaultInteger, type: .getter) var `default`: Int
 }
 
 let client = Client()

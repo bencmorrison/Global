@@ -3,9 +3,9 @@
 import Global
 
 struct HelperStruct {
-    @Global(\.globalEnum) var globalEnum
+    @GlobalRW(\.globalEnum) var globalEnum
 }
 
 final class HelperClass {
-    @Global(\.globalEnum) var globalEnum
+    @GlobalRW(\.globalEnum) var globalEnum
 }

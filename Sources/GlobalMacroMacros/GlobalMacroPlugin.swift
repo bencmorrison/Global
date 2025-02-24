@@ -6,7 +6,7 @@ import SwiftSyntaxMacros
 @main
 struct GlobalMacroPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        GlobalValueMacro.self,
+        GlobalItemMacro.self,
         GlobalAccessorMacro.self
     ]
 }

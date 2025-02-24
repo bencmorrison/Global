@@ -8,7 +8,7 @@ So I created `Global` which behaves like `@Environment`. It even has a similar s
 
 ## Usage
 
-There are two ways you can use `Global`. The first way is the non-macro way. This way gives you full control over everything when it comes to using `Global`. The second way is via the macro, `@GlobalValue`, that will mostly automate the boilerplate code needed in the non-macro way of doing things.
+There are two ways you can use `Global`. The first way is the non-macro way. This way gives you full control over everything when it comes to using `Global`. The second way is via the two macros `@Item` and `@Accessor`, that will mostly automate the boilerplate code needed in the non-macro way of doing things.
 
 ### The non-macro way
 
@@ -47,15 +47,16 @@ import Global
 // Then you use the property wrapper in some type.
 final class SomeRandomClass {
     /// This will allow us access to the `SomeGlobalState` stored in `GlobalValues`
+    //If you want this to be Read and Write use @GlobalRW
     @Global(\.state) var state
 }
 ```
 
 ### The macro way.
 
-The macro way is pretty simple, and easy. We will use the type above to show this example as well. It too takes the same idea as the `@Enviornment` maco, and also takes on `@Entry` macro as well. To prevent any sort of headaches I decided to not name my macro `@Entry` as well. Instead we will use `GlobalValue`.
+The macro way is pretty simple, and easy. We will use the type above to show this example as well. It too takes the same idea as the `@Enviornment` maco, and also takes on `@Entry` macro as well. For `Global` the macro that mirrors @Entry is `@Item`.
 
-Bu default the macro will create all defaultValues as a stored constant property (`let v: Int = 0`). If you would like to change this to a computed variable add the argument `propertyType` to your macro. Example: `@GlobalValue(propertyType: .computed) var v: Int = 0` which will result in `var v: Int { 0 }`
+Bu default the macro will create all defaultValues as a stored constant property (`let v: Int = 0`). If you would like to change this to a computed variable add the argument `propertyType` to your macro. Example: `@Item(propertyType: .computed) var v: Int = 0` which will result in `var v: Int { 0 }`
 
 **Requirments** to keep in mind:
 
@@ -80,10 +81,10 @@ import GlobalMacros
 extension GlobalValues {
     // The macro will automatically create all needed code to allow you to use the
     // @Global property wrapper.
-    @GlobalValue var state: SomeGlobalState = .unknown
+    @Item var state: SomeGlobalState = .unknown
     // You can add all types you want global in this sigle file.
     // Another Example:
-    @GlobalValue var state: String = "Another Value"
+    @Item var state: String = "Another Value"
 }
 ```
 
@@ -124,20 +125,19 @@ extension UIView {
 
 ### Helper Macro
 
-To help automate this a bit, you can use the helper macro `@GlobalAccessor`.
+To help automate this a bit, you can use the helper macro `@Accessor`.
 It should be noted that this cannot check if this global has already been added to the type via an extension elsewhere.
 
 ```swift
 extension UIView {
     // This code assumes `SomeGlobalState` to already have been added to `GlobalValues`
     // The type is required here!
-    @GlobalAccessor(\.state) var state: SomeGlobalState
+    @Accessor(\.state) var state: SomeGlobalState
 }
 ```
 
 By _default_ only the getter is synthesized. If you would like to also get the setter created you can set the
-`type` arguent on the macro to `.getterAndSetter` EX: `@GlobalAccessor(\.state, type: .getterAndSetter) var state: SomeGlobalState`
-which will synthesize both the getter and setter for the `Global`.
+`type` arguent on the macro to `.getterAndSetter` EX: `@Accessor(\.state, type: .getterAndSetter) var state: SomeGlobalState` which will synthesize both the getter and setter for the `Global`.
 
 
 ## Adding `Global` as a depenancy
@@ -145,7 +145,7 @@ which will synthesize both the getter and setter for the `Global`.
 To use the `Global` library in a SwiftPM project, add the following line to the dependencies in your Package.swift file:
 
 ```swift
-.package(url: "https://github.com/bencmorrison/swift-global.git", from: "0.4.0"),
+.package(url: "https://github.com/bencmorrison/swift-global.git", from: "1.0.0"),
 ```
 
 include `Global` and `GlobalMacros` (only if you plan to use the macro way) as dependancies for your executable targets

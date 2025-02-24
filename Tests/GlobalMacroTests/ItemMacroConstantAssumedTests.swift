@@ -10,11 +10,11 @@ import XCTest
 import GlobalMacroMacros
 #endif
 
-final class GlobalMacroConstantDefinedTests: XCTestCase {
+final class ItemMacroConstantAssumedTests: XCTestCase {
     let testMacros: [String: Macro.Type] = {
         #if canImport(GlobalMacroMacros)
         [
-            "GlobalValue": GlobalValueMacro.self,
+            "Item": GlobalItemMacro.self,
         ]
         #else
         []
@@ -25,21 +25,21 @@ final class GlobalMacroConstantDefinedTests: XCTestCase {
         assertMacroExpansion(
             """
             extension GlobalValues {
-                @GlobalValue(propertyType: .constant) var state: GlobalState = .whoKnows
+                @Item var state: GlobalState = .whoKnows
             }
             """,
             expandedSource: """
             extension GlobalValues {
                 var state: GlobalState {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState
                     static let defaultValue: Value = .whoKnows
                 }
@@ -57,21 +57,21 @@ final class GlobalMacroConstantDefinedTests: XCTestCase {
         assertMacroExpansion(
             """
             extension GlobalValues {
-                @GlobalValue(propertyType: .constant) var state: GlobalState? = nil
+                @Item var state: GlobalState? = nil
             }
             """,
             expandedSource: """
             extension GlobalValues {
                 var state: GlobalState? {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState?
                     static let defaultValue: Value = nil
                 }
@@ -89,21 +89,21 @@ final class GlobalMacroConstantDefinedTests: XCTestCase {
         assertMacroExpansion(
             """
             extension GlobalValues {
-                @GlobalValue(propertyType: .constant) var state: GlobalState?
+                @Item var state: GlobalState?
             }
             """,
             expandedSource: """
             extension GlobalValues {
                 var state: GlobalState? {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState?
                     static let defaultValue: Value = nil
                 }
@@ -121,21 +121,21 @@ final class GlobalMacroConstantDefinedTests: XCTestCase {
         assertMacroExpansion(
             """
             extension GlobalValues {
-                @GlobalValue(propertyType: .constant) var state: GlobalState? = .whoKnows
+                @Item var state: GlobalState? = .whoKnows
             }
             """,
             expandedSource: """
             extension GlobalValues {
                 var state: GlobalState? {
                     get {
-                        self[__GlobalKey_state.self]
+                        self[__GlobalValueEntry_state.self]
                     }
                     set {
-                        self[__GlobalKey_state.self] = newValue
+                        self[__GlobalValueEntry_state.self] = newValue
                     }
                 }
             
-                private struct __GlobalKey_state: GlobalKey {
+                private struct __GlobalValueEntry_state: GlobalKey {
                     typealias Value = GlobalState?
                     static let defaultValue: Value = .whoKnows
                 }

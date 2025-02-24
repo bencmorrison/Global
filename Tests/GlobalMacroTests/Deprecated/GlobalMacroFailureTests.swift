@@ -19,7 +19,7 @@ final class GlobalMacroFailureTests: XCTestCase {
     let testMacros: [String: Macro.Type] = {
         #if canImport(GlobalMacroMacros)
         [
-            "GlobalValue": GlobalValueMacro.self,
+            "GlobalValue": GlobalItemMacro.self,
         ]
         #else
         []
@@ -44,7 +44,7 @@ final class GlobalMacroFailureTests: XCTestCase {
             expandedSource: expectedOutput,
             diagnostics: [
                 DiagnosticSpec(
-                    from: .requiresVariableDeclaration(macro: GlobalValueMacro.self),
+                    from: .requiresVariableDeclaration(macro: GlobalItemMacro.self),
                     line: 2, column: 5
                 )
             ],
@@ -74,11 +74,11 @@ final class GlobalMacroFailureTests: XCTestCase {
             expandedSource: expectedOutput,
             diagnostics: [
                 DiagnosticSpec(
-                    from: .requiresUseInExtension(forMacro: GlobalValueMacro.self),
+                    from: .requiresUseInExtension(forMacro: GlobalItemMacro.self),
                     line: 2, column: 5
                 ),
                 DiagnosticSpec(
-                    from: .requiresUseInExtension(forMacro: GlobalValueMacro.self),
+                    from: .requiresUseInExtension(forMacro: GlobalItemMacro.self),
                     line: 2, column: 5
                 )
             ],
@@ -108,11 +108,11 @@ final class GlobalMacroFailureTests: XCTestCase {
             expandedSource: expectedOutput,
             diagnostics: [
                 DiagnosticSpec(
-                    from: .requiresUseInExtension(GlobalValueMacro.extensionName, forMacro: GlobalValueMacro.self),
+                    from: .requiresUseInExtension(GlobalItemMacro.extensionName, forMacro: GlobalItemMacro.self),
                     line: 2, column: 5
                 ),
                 DiagnosticSpec(
-                    from: .requiresUseInExtension(GlobalValueMacro.extensionName, forMacro: GlobalValueMacro.self),
+                    from: .requiresUseInExtension(GlobalItemMacro.extensionName, forMacro: GlobalItemMacro.self),
                     line: 2, column: 5
                 )
             ],
@@ -135,10 +135,10 @@ final class GlobalMacroFailureTests: XCTestCase {
         extension GlobalValues {
             var state {
                 get {
-                    self[__GlobalKey_state.self]
+                    self[__GlobalValueEntry_state.self]
                 }
                 set {
-                    self[__GlobalKey_state.self] = newValue
+                    self[__GlobalValueEntry_state.self] = newValue
                 }
             }
         }
@@ -149,7 +149,7 @@ final class GlobalMacroFailureTests: XCTestCase {
             expandedSource: expectedOutput,
             diagnostics: [
                 DiagnosticSpec(
-                    from: .requiresTypeAnnotation(macro: GlobalValueMacro.self),
+                    from: .requiresTypeAnnotation(macro: GlobalItemMacro.self),
                     line: 2, column: 5
                 )
             ],
@@ -172,10 +172,10 @@ final class GlobalMacroFailureTests: XCTestCase {
         extension GlobalValues {
             var state: String {
                 get {
-                    self[__GlobalKey_state.self]
+                    self[__GlobalValueEntry_state.self]
                 }
                 set {
-                    self[__GlobalKey_state.self] = newValue
+                    self[__GlobalValueEntry_state.self] = newValue
                 }
             }
         }
@@ -186,7 +186,7 @@ final class GlobalMacroFailureTests: XCTestCase {
             expandedSource: expectedOutput,
             diagnostics: [
                 DiagnosticSpec(
-                    from: .requiresVariableInitalization(macro: GlobalValueMacro.self),
+                    from: .requiresVariableInitalization(macro: GlobalItemMacro.self),
                     line: 2, column: 5
                 )
             ],
@@ -210,10 +210,10 @@ final class GlobalMacroFailureTests: XCTestCase {
         extension GlobalValues {
             var state: String {
                 get {
-                    self[__GlobalKey_state.self]
+                    self[__GlobalValueEntry_state.self]
                 }
                 set {
-                    self[__GlobalKey_state.self] = newValue
+                    self[__GlobalValueEntry_state.self] = newValue
                 }
             }
         }
@@ -224,7 +224,7 @@ final class GlobalMacroFailureTests: XCTestCase {
             expandedSource: expectedOutput,
             diagnostics: [
                 DiagnosticSpec(
-                    from: .unknownType(propertyType, forMacro: GlobalValueMacro.self),
+                    from: .unknownType(propertyType, forMacro: GlobalItemMacro.self),
                     line: 2, column: 5
                 )
             ],
