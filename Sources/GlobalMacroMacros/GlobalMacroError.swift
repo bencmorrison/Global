@@ -4,10 +4,6 @@ import SwiftDiagnostics
 
 let diagnosticDomain: String = "GlobalMacroMacros"
 
-public protocol MacroNameProvider {
-    static var macroName: String { get }
-}
-
 public struct GlobalMacroError: Error, DiagnosticMessage, Equatable {
     public let message: String
     public let diagnosticID: MessageID
@@ -20,33 +16,41 @@ public struct GlobalMacroError: Error, DiagnosticMessage, Equatable {
 }
 
 extension GlobalMacroError {
+    public static func notEnoughArguments(_ number: Int, macro: any MacroNameProvider.Type) -> Self {
+        .init("\(macro.macroErrorId) requires \(number) of argument\(number == 1 ? "" : "s")")
+    }
+    
     public static func requiresVariableDeclaration(macro: any MacroNameProvider.Type) -> Self {
-        .init("@\(macro.macroName) can only be used with a variable declaration.")
+        .init("\(macro.macroErrorId) can only be used with a variable declaration.")
     }
     
     public static func invalidVariableDeclaration(macro: any MacroNameProvider.Type) -> Self {
-        .init("@\(macro.macroName) found an invalid variable declaration.")
+        .init("\(macro.macroErrorId) found an invalid variable declaration.")
     }
     
     public static func requiresUseInExtension(_ extensionName: String? = nil, forMacro macro: any MacroNameProvider.Type) -> Self {
-        var message = "@\(macro.macroName) must be used in an extension"
+        var message = "\(macro.macroErrorId) must be used in an extension"
         if let extensionName { message += " of \(extensionName)" }
         return .init(message)
     }
     
     public static func requiresTypeAnnotation(macro: any MacroNameProvider.Type) -> Self {
-        .init("@\(macro.macroName) requires a type to be annotated for variable declarations.")
+        .init("\(macro.macroErrorId) requires a type to be annotated for variable declarations.")
     }
     
     public static func requiresVariableInitalization(macro: any MacroNameProvider.Type) -> Self {
-        .init("@\(macro.macroName) requires variable to be initialized, or must be marked as optional.")
+        .init("\(macro.macroErrorId) requires variable to be initialized, or must be marked as optional.")
     }
     
     public static func unknownType(_ type: String, forMacro macro: any MacroNameProvider.Type) -> Self {
-        .init("@\(macro.macroName) found an unknown type: \(type).")
+        .init("\(macro.macroErrorId) found an unknown type: \(type).")
     }
     
     public static func missingRequiredArgument(_ argument: String, forMacro macro: any MacroNameProvider.Type) -> Self {
-        .init("@\(macro.macroName) missing required argument: \(argument).")
+        .init("\(macro.macroErrorId) missing required argument: \(argument).")
     }
+}
+
+extension MacroNameProvider {
+    static var macroErrorId: String { macroPrefix + macroName }
 }

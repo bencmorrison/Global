@@ -6,7 +6,7 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 public struct GlobalAccessorMacro: AccessorMacro, GlobalMacroSupport {
-    public static let macroName = "Accessor"
+    public static let macroType: MacroType = .attached("Accessor")
     static let keyPathArgumentName = "keyPath"
     static let methodArgumentName = "type"
     static let methodValueGetter = "getter"

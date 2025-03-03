@@ -13,8 +13,9 @@ struct Thing {
 }
 
 extension GlobalValues {
-    @GlobalValue(propertyType: .computed) var state: GlobalState = .whoKnows
-    @Item var defaultInteger: Int = 1234567890
+    @Item(accessors: .getterAndSetter, propertyType: .computed) var state: GlobalState = .whoKnows
+    @Item(accessors: .getter) var defaultInteger: Int = 1234567890
+    @Item var test: String = "Hello, World!"
 }
 
 final class Client: CustomStringConvertible {
@@ -54,3 +55,8 @@ print(client)
 print(viewer)
 print(Int.max.default)
 
+var freestanding = #Global(\.test)
+print(freestanding)
+#Global(\.test, setTo: "LOOOOL")
+freestanding = #Global(\.test)
+print(freestanding)

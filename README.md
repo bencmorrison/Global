@@ -8,13 +8,18 @@ So I created `Global` which behaves like `@Environment`. It even has a similar s
 
 ## Usage
 
-There are two ways you can use `Global`. The first way is the non-macro way. This way gives you full control over everything when it comes to using `Global`. The second way is via the two macros `@Item` and `@Accessor`, that will mostly automate the boilerplate code needed in the non-macro way of doing things.
+There are two ways you can use `Global`. 
+
+1. The first way is the non-macro way. This way gives you full control over everything when it comes to using `Global`. There is a great property wrapper `@Global` to help access global in structures.
+
+2. Using macros to create and gain access to the values. These can be used in combination with the proprety wapper for full effect. There is `@Item`, `@Accessor`, and `#Global` macros to help use `Global` in a lot of various situations.
 
 ### The non-macro way
 
 This example shows you how to enable a type, in this case an Enum, to be used as a `Global`. This is the typical way one would set it up, as if they were using `@Environment` from `SwiftUI`. It is a bit wordy but not too wordy.
 
-#### SomeGlobalState.swift
+#### Example Setup
+
 ```swift
 import Global
 
@@ -39,7 +44,7 @@ extension GlobalValues {
 }
 ```
 
-#### Example Usage
+#### Example Property Wrapper Usage
 
 ```swift
 import Global
@@ -52,100 +57,113 @@ final class SomeRandomClass {
 }
 ```
 
-### The macro way.
+### Using `Global`'s macros
 
-The macro way is pretty simple, and easy. We will use the type above to show this example as well. It too takes the same idea as the `@Enviornment` maco, and also takes on `@Entry` macro as well. For `Global` the macro that mirrors @Entry is `@Item`.
+There are various macros that are in `GlobalMacros` to help you with using `Global` in general. The macro framework provides helpers for creating a `GlobalKey` in `GlobalValues` and accessors for when using the property wrapper may not be advantagous.
 
-Bu default the macro will create all defaultValues as a stored constant property (`let v: Int = 0`). If you would like to change this to a computed variable add the argument `propertyType` to your macro. Example: `@Item(propertyType: .computed) var v: Int = 0` which will result in `var v: Int { 0 }`
+The various macros are:
 
-**Requirments** to keep in mind:
+1. [`@Item`](#the-item-macro)
+2. [`@Accessor`](#the-accessor-macro)
+3. [`#Global`](#the-global-macro)
+
+#### The `@Item` macro
+
+The `@Item` macro works like the `@Entry` macro for SwiftUI's `@Environment`. Like the entry macro, you do not need to make your object confrom to `GlobalKey` and then define it yourself in `GlobalValues` you can use the macro to provide conformance.
+
+##### Requirements: 
 
 - You must use the macro in an extension of `GlobalValues`
 - At this type your variables are required to have type annotation.
 - The variable must be initalized _unless_ it is optional.
 
-#### SomeGlobalState.swift
+##### `@Item` has some arguments
 
-```swift
-// This is the enum we want at a global scope
-enum SomeGlobalState {
-    case unknown, loading, loaded(Data)
-}
-```
+| Argument | Type | Description |
+| -------- | ---- | ----------- |
+| accessors | `AccessorType` | By default this macro will create a getter and setter for the value in `GlobalValues`. You can set this to `.getter` if you'd like to only have a getter created. It will ignore `.setter` do default behaviour. |
+| propertyType | `PropertyType` | The macro allows you to control if the wrapper class that provides conformance creates a constant default or a property wrapper constant. By default it is `.constant` |
 
-#### GlobalValues.swift
+##### Usage:
+
 ```swift
 import Global
 import GlobalMacros
 
 extension GlobalValues {
-    // The macro will automatically create all needed code to allow you to use the
-    // @Global property wrapper.
-    @Item var state: SomeGlobalState = .unknown
-    // You can add all types you want global in this sigle file.
-    // Another Example:
-    @Item var state: String = "Another Value"
+    // Using @Item here, will create an item in the
+    // GlobalValues with the getter and setters
+    // that an be used across the app.
+    @Item var userState: UserState = .unknown
 }
 ```
 
-#### Example Usage
+#### The `@Accessor` macro
+
+`@Accessor` allows you to create a property in an extension so you can access the value in `GlobalValues`. This is useful when you want to access the value in an extension and you can't add the property wrapper to the main object.
+
+##### Requirements: 
+
+- Currently `@Accessor` only works in extensions.
+- Variables are required to have type annotation.
+
+##### `@Item` has some arguments
+
+| Argument | Type | Description |
+| -------- | ---- | ----------- |
+| keypath | `KeyPath<GlobalValues, Value>` | The keypath of the value in the `GlobalValues` |
+| type | `AccessorType` | This allows you to control if you'd like to create the getter and setter or getter only for the property. It will by default only provide the getter. If you attempt to set to setter only, default behaviour will be followed. |
+
+##### Usage:
 
 ```swift
 import Global
+import GlobalMacros
 
-// Then you use the property wrapper in some type.
-final class SomeRandomClass {
-    /// This will allow us access to the `SomeGlobalState` stored in `GlobalValues`
-    @Global(\.state) var state
+extension SomeRandomThing {
+    @Accessor(\.userState) var userState: UserState
 }
 ```
 
-## Global Values and Extensions
+#### The `#Global` macro
 
-There may be a time where you can't add the property wrapper directly to an extension for various reasons.
-There are two ways you can do this, manually, or via a helper macro.
+The `#Global` allows for even more fine grained usage of `Global` and it's values. There are two variations of this macro, a getter, and a setter.
 
-### Manually
+##### `#Global` has some arguments
 
-To manually allow your extension to access your global value or set your global value you will need to do the following in your extension.
+| Argument | Type | Description |
+| -------- | ---- | ----------- |
+| keypath | `KeyPath<GlobalValues, Value>` | The keypath of the value in the `GlobalValues`. When this is the only argument, the `Value` is returned. |
+| newValue | Value? | This is optional, when used the value in `GlobalValues` will be set to the provided value. |
+
+##### Usage:
 
 ```swift
-extension UIView {
-    // This code expects `SomeGlobalState` to already have been added to `GlobalValues`
-    var state: SomeGlobalState {
-        get {
-            GlobalValues.get(\.state)
+import Global
+import GlobalMacros
+
+struct SomethingCool {
+    func somethingReallyRealyCool() {
+        // Grabs the value from `GlobalValues`
+        let state = #Global(\.userState)
+        switch state {
+            // DO STUFF
         }
-        set {
-            GlobalValues.set(\.state, to: newValue)
-        }
+    }
+
+    func userStateChangedForSomeReason() {
+        // Set the userState to .unknown in `GlobalValues`
+        #Global(\.userState, setTo: .unknown)
     }
 }
 ```
-
-### Helper Macro
-
-To help automate this a bit, you can use the helper macro `@Accessor`.
-It should be noted that this cannot check if this global has already been added to the type via an extension elsewhere.
-
-```swift
-extension UIView {
-    // This code assumes `SomeGlobalState` to already have been added to `GlobalValues`
-    // The type is required here!
-    @Accessor(\.state) var state: SomeGlobalState
-}
-```
-
-By _default_ only the getter is synthesized. If you would like to also get the setter created you can set the
-`type` arguent on the macro to `.getterAndSetter` EX: `@Accessor(\.state, type: .getterAndSetter) var state: SomeGlobalState` which will synthesize both the getter and setter for the `Global`.
-
 
 ## Adding `Global` as a depenancy
 
 To use the `Global` library in a SwiftPM project, add the following line to the dependencies in your Package.swift file:
 
 ```swift
-.package(url: "https://github.com/bencmorrison/swift-global.git", from: "1.0.0"),
+.package(url: "https://github.com/bencmorrison/swift-global.git", from: "<RELEASE_NUMBER>"),
 ```
 
 include `Global` and `GlobalMacros` (only if you plan to use the macro way) as dependancies for your executable targets
@@ -164,7 +182,3 @@ Finally, add `import Global` and `import GlobalMacros` to your source code as ne
 If you would like to contribute to this at all that is awesome. Though I do reserve the right to say no to changes.
 
 Please feel free to file issues as well.
-
-## Notes
-
-- There is some testing around the macro and global in general. I hope to more in the future.

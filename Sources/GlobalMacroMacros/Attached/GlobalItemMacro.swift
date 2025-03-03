@@ -6,7 +6,7 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 public struct GlobalItemMacro: GlobalMacroSupport {
-    public static var macroName: String { "Item" }
+    public static let macroType: MacroType = .attached("Item")
     @usableFromInline static let extensionName: String = "GlobalValues"
     @usableFromInline static let prefix: String = "__GlobalValueEntry_"
     @usableFromInline static let propertyTypeArgumentName: String = "propertyType"
@@ -26,6 +26,10 @@ public struct GlobalItemMacro: GlobalMacroSupport {
 }
 
 extension GlobalItemMacro: AccessorMacro {
+    static let methodArgumentName = "accessors"
+    static let methodValueGetter = "getter"
+    static let methodValueGetterAndSetter = "getterAndSetter"
+    
     public static func expansion(
         of node: AttributeSyntax,
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
@@ -35,12 +39,18 @@ extension GlobalItemMacro: AccessorMacro {
         let identifier = try identifier(from: variableDecl)
         try ensureInProtocol(named: extensionName, in: context)
 
+        let type = argumentNamed(methodArgumentName, from: node) {
+            guard let memberAccess = $0?.expression.as(MemberAccessExprSyntax.self) else { return methodValueGetterAndSetter }
+            return memberAccess.declName.baseName.text
+        }
+        
         let keyName = "\(prefix)\(identifier.text)"
+        var retVal: [AccessorDeclSyntax] = [ AccessorDeclSyntax("get { self[\(raw: keyName).self] }") ]
+        if type == methodValueGetterAndSetter {
+            retVal.append(AccessorDeclSyntax("set { self[\(raw: keyName).self] = newValue }"))
+        }
 
-        return [
-            AccessorDeclSyntax("get { self[\(raw: keyName).self] }"),
-            AccessorDeclSyntax("set { self[\(raw: keyName).self] = newValue }")
-        ]
+        return retVal
     }
 }
 
